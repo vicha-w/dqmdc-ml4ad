@@ -48,18 +48,20 @@ const Navbar = () => {
                   </NavDropdown>
                 </Nav>
                 <Nav>
-                  <Nav.Link className='me-3'>Signed in as: {auth.user.profile.sub}</Nav.Link>
-                  <Button type='submit' onClick={() => setShowLogoutModal(true)}>Logout</Button>
-                  <Modal show={showLogoutModal}>
-                    <Modal.Header>
-                      <Modal.Title>Logout</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>You are sure that you want to logout?</Modal.Body>
-                    <Modal.Footer>
-                      <Button variant='secondary' onClick={() => setShowLogoutModal(false)}>No</Button>
-                      <Button variant='primary' onClick={handleLogout}>Yes</Button>
-                    </Modal.Footer>
-                  </Modal>
+                  <NavDropdown>{auth.user.profile.name}
+                    <NavDropdown.Text>Signed in as {auth.user.profile.sub}</NavDropdown.Text>
+                    <NavDropdown.Item as={NavLink} onClick={() => setShowLogoutModal(true)}>Logout</NavDropdown.Item>
+                    <Modal show={showLogoutModal}>
+                      <Modal.Header>
+                        <Modal.Title>Logout</Modal.Title>
+                      </Modal.Header>
+                      <Modal.Body>Are you sure you want to logout?</Modal.Body>
+                      <Modal.Footer>
+                        <Button variant='secondary' onClick={() => setShowLogoutModal(false)}>No</Button>
+                        <Button variant='primary' onClick={handleLogout}>Yes</Button>
+                      </Modal.Footer>
+                    </Modal>
+                  </NavDropdown>
                 </Nav>
               </>
               )

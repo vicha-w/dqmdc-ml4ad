@@ -1,81 +1,22 @@
 # MLPlayground
 
-## Components
+The backend can be divided in the following components:
 
-* DQMIO File Indexer (DFI)
-* DQMIO ETL (DETL)
+* `DQMIO File Indexer`: Component responsible for keeping track of raw data (DQMIO rootfiles) stored in EOS using a database table. It should store good files and bad files metadata (Rootfile's fUUID, file era, number of entries, ...), filepath in EOS filesystem and processing status. In the sense of a data architecture it handles the raw data indexing.
 
-### DFI
+* `DQMIO ETL`: Component responsible for executing our ETL (Extract-Transform-Load) pipeline for each indexed file. The pipeline will import all Runs, Lumisections and Histograms to our database. In the sense of a data architecture it handles the raw data ingestion.
 
-Component responsible for keeping track of data (DQMIO rootfiles) stored in EOS using a database table. It should store files metadata (run number, primary dataset, ...), filepath in EOS filesystem, processing status and some statistics. We must provide automatic updates to our knowledge base and offer a button to let a user trigger the indexer on-demand. In or to snure that no duplicated threads exists each processing will happen one at a time using a job queue.
+* `DQMIO Celery Tasks`: Component responsible for visualizing job queues state, configuring celery signal and generating serializers for api methods that schedule tasks instead returning the actual data.
 
-### DETL
+* `Custom Auth`: Component responsible for handling authentication within rest api using two different viewsets: `KeycloakApiTokenViewSet` and `KeycloakExchangeViewSet`. Note: we are using solely the CERN SSO authentication (that is **super** similar no Keycloak underneath).
 
-Component responsible for executing our ETL (Extract-Transform-Load) pipeline based on files not yet processed stored by DFI. Given the fact that DQMIO files vary in size, it is not possible to forecast how much computer resources would be enough for processing multiple files at the sime time, then the processing will happen one at a time using a job queue.
+The data pipeline is depicted in the following image:
 
-## Local development
-
-Documentation, tips and tricks to develop MLPlayground locally.
-
-### Accessing DQMIO MLPlayground data from EOS
-
-The following commands will mount the specific DQMIO production data from EOS in read-only mode in your home folder:
-
-```bash
-mkdir -p $HOME/data_mlplayground_dqmio
-sshfs -o default_permissions,ro $USER@lxplus:/eos/project/m/mlplayground/public/DQMIO $HOME/data_mlplayground_dqmio
-```
-
-Unmount goes like:
-
-```bash
-umount $HOME/data_mlplayground_dqmio
-rm -rf $HOME/data_mlplayground_dqmio
-```
-
-### Running PostgresSQL
-
-Considering the main application will only communicate with the database using PostgreSQL DBMS (i.e. not messing with database files directly), running the DBMS decoupled from the main application is less stressful and simulates the production environment. It goes without saying that is much easier to run Postgres using Docker. Using the `-v` flag we can bind-mount the data stored inside the container in the host in order to have a persitent database accross development sessions.
-
-```bash
-docker run -d \
-	--name postgresql_local \
-    --restart always \
-    -e POSTGRES_USER=postgres \
-	-e POSTGRES_PASSWORD=postgres \
-	-v /mnt/postgresql_local_docker_data:/var/lib/postgresql/data \
-    -p 5432:5432 \
-	postgres
-```
-
-### Running Redis
-
-```bash
-docker run -d \
-	--restart always \
-	--name redis_local \
-	-p 6379:6379 \
-	redis
-```
-
-### Running Celery Workers
-
-Starting the worker for dqmio_file_indexer queue:
-
-```bash
-celery -A mlplayground worker -l INFO -c 1 -n worker1 -Q dqmio_file_indexer_queue
-```
+![alt text](/docs/img/backend_data_pipeline.png)
 
 
-Starting the worker for dqmio_etl queue:
-```bash
-celery -A mlplayground worker -l INFO -c 1 -n worker2 -Q dqmio_etl_queue
-```
+## Useful sources
 
-### Running Celery Beat
-
-Start the beat scheduler:
-
-```bash
-celery -A mlplayground beat -l INFO
-```
+* [Integrating Keycloak with Django](https://blog.stackademic.com/integrating-keycloak-with-django-7ae39abe3a0b) (Specifically PART 2)
+* [Hot to run periodic tasks in Djando using Celery](https://episyche.com/blog/how-to-run-periodic-tasks-in-django-using-celery)
+* [Celery lock question at stackoverflow](https://stackoverflow.com/questions/32321143/allow-a-task-execution-if-its-not-already-scheduled-using-celery)

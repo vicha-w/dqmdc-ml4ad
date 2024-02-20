@@ -32,6 +32,9 @@ const Histograms2D = () => {
       dataField: 'run_number',
       text: 'Run',
       type: 'number',
+      headerStyle: { 'max-width': '100px' },
+      headerAlign: 'left',
+      align: 'left',
       formatter: (cell, row) => {
         const linkTo = `/runs/${row.run_number}`
         return (
@@ -43,6 +46,9 @@ const Histograms2D = () => {
       dataField: 'ls_number',
       text: 'Lumisection',
       type: 'number',
+      headerStyle: { 'max-width': '150px' },
+      headerAlign: 'left',
+      align: 'left',
       formatter: (cell, row) => {
         const linkTo = `/lumisections/${row.lumisection}`
         return (
@@ -55,6 +61,8 @@ const Histograms2D = () => {
       text: 'Title',
       type: 'string',
       headerStyle: { 'min-width': '300px', 'word-break': 'break-all' },
+      headerAlign: 'left',
+      align: 'left',
       formatter: (cell, row) => {
         const linkTo = `/histograms-2d/${row.id}`
         return (
@@ -62,10 +70,12 @@ const Histograms2D = () => {
         )
       }
     },
-    { dataField: 'entries', text: 'Entries', type: 'number' },
+    { dataField: 'entries', text: 'Entries', type: 'number', headerAlign: 'left', align: 'left' },
     {
       dataField: 'plot',
       text: 'Plot',
+      headerAlign: 'left',
+      align: 'left',
       formatter: (cell, row) => {
         const linkTo = `/histograms-2d/${row.id}`
         return (
